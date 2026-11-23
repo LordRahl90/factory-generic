@@ -1,0 +1,75 @@
+[project]
+name = "factory"
+version = "0.1.0"
+description = "A Generic Software factory implementation with different entry points."
+readme = "README.md"
+authors = [
+    { name = "Alugbin Abiodun Olutola", email = "alugbin.abiodun@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "litellm>=1.110.2",
+    "pydantic-settings>=2.16.3",
+    "python-dotenv>=1.2.4",
+    "typer>=0.29.2",
+]
+
+[project.scripts]
+factory = "factory.entrypoints.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "PT", "RUF"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --import-mode=importlib --cov=factory --cov-report=term-missing"
+markers = ["integration: needs external services such as Postgres"]
+
+[tool.importlinter]
+root_package = "factory"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Dependencies point inward"
+type = "layers"
+layers = [
+    "factory.entrypoints",
+    "factory.bootstrap",
+    "factory.adapters",
+    "factory.application",
+    "factory.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "The domain uses the standard library only"
+type = "forbidden"
+source_modules = ["factory.domain"]
+forbidden_modules = ["pydantic", "litellm", "psycopg", "yaml", "github", "slack_bolt", "kubernetes", "fastapi"]
+
+[[tool.importlinter.contracts]]
+name = "The application depends on ports, not technology"
+type = "forbidden"
+source_modules = ["factory.application"]
+forbidden_modules = ["litellm", "psycopg", "yaml", "github", "slack_bolt", "kubernetes", "fastapi"]
