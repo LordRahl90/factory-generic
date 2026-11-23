@@ -1,6 +1,6 @@
 .PHONY: check format lint type arch test
 
-check: lint type test
+check: lint type arch test
 
 format:
 	uv run ruff format .
@@ -16,4 +16,4 @@ test:
 	uv run pytest
 
 arch:
-	uv run lint-imports
+	uv run --with import-linter lint-imports
